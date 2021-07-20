@@ -313,7 +313,7 @@
     $(document).ready(function() {
       var dcconListUrl = getUrlParameter('dccon_list');
       if (dcconListUrl == undefined) {
-        dcconListUrl = 'https://raw.githubusercontent.com/boutoron2685/open-dccon-custom-list/master/js/dccon_list.json';
+        dcconListUrl = 'https://gist.githubusercontent.com/chowonhee1235/9065be102936eda0f6ed45de2e72c79b/raw/e335e62dde9ff42a2ed197ce61f885c4c516bdab/dccon_list.json';
       }
       $.getJSON(dcconListUrl).done(function(data) {
           dcconList = data.dccons;
