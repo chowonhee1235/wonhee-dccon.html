@@ -1,331 +1,268 @@
-<!DOCTYPE html>
-<html lang="ko">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,minimum-scale=1.0" />
   <title>디시콘 선택기</title>
-  <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/list.css" />
-</head>
-
-<body>
-  <div class="container">
-    <div class="headerbox">
-        <div class="top-menu">
-        <li>Twitch</li>
-        </div>
-      <div class="columns">
-        <div class="column hide-xs show col-md-1 col-2"></div>
-        <div class="column col-xs-12 col-md-10 col-8">
-          <div class="logo"><p>디시콘 선택기 </p></div>
-          <div class="input-group input-inline width100">
-            <span class="input-group-addon">~</span>
-            <div class="form-autocomplete width100">
-              <div class="form-autocomplete-input form-input has-icon-right">
-                <input class="form-input" id="search" type="text" placeholder="이모티콘 검색" />
-                <i class="form-icon icon icon-cross" id="search_clear"></i>
-              </div>
-              <ul class="menu hide" id="autocomplete"></ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column hide-xs show col-md-1 col-2"></div>
-        <div class="column col-xs-12 col-md-10 col-8">
-          <div class="tags"></div>
-        </div>
-      </div>
-    </div>
-    <div class="intervalbox"></div>
-    <div class="itembox">
-      <div class="columns">
-        <div class="column hide-xs show col-lg-1 col-1"></div>
-        <div class="column col-xs-12 col-lg-10 col-10 columns dccon-list"></div>
-      </div>
-    </div>
-    <div class="toast-container"></div>
-
-  </div>
-	<script type="text/javascript">
-		var stl = null;
-
-		var resize = function() {
-			if (stl!=null) { stl.remove(); }
-			stl = document.createElement("style");
-
-			var width = document.body.getElementsByClassName("dccon-list")[0].scrollWidth;
-			if (width < 800)
-			{
-				if (width < 600)
-				{
-					if (width < 500)
-					{
-						if (width < 400)
-						{
-							if (width < 300) { stl.innerText=".col-15{width:50%;}" }
-							else { stl.innerText=".col-15{width:33%;}" }
-						}
-						else { stl.innerText=".col-15{width:25%;}" }
-					}
-					else { stl.innerText=".col-15{width:20%;}" }
-				}
-				else { stl.innerText=".col-15{width:16%;}" }
-			}
-			else { stl.innerText=".col-15{width:12.5%;}" }
-
-			document.body.appendChild(stl);
-		};
-
-		window.addEventListener("resize", resize);
-		window.addEventListener("load", resize);
-	</script>
-  <div class="credit">
-      <div class="text">
-          <p>Original System by <a href="https://github.com/rishubil/jsassist-open-dccon">rishubil</a>, Edited by Ganke</p>
-      </div>
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.5/jquery.lazy.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.5/jquery.lazy.plugins.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js"></script>
-  <script src="https://cdn.rawgit.com/teampopong/hangul-jamo-js/eaca39e7/hangul-jamo.js"></script>
-  <script type="text/javascript">
-    var dcconList = [];
-
-    function getUrlParameter(sParam) {
-      var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-
-      for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-          return sParameterName[1] === undefined ? true : sParameterName[1];
-        }
-      }
-    };
-
-    function init() {
-      var seletedTags = [];
-      var currentSearchText = "";
-      var dcconSearchMap = {}; // keyword로 dccon을 찾을 수 있도록 하는 맵
-      var dcconKeywordList = []; // 전체 keyword 리스트
-      var visibleDccon = {};
-      var autocompleteData = {};
-      var tags = [];
-      // dcconSearchMap, dcconKeywordList 초기화
-      for (var i = 0; i < dcconList.length; i++) {
-        var dccon = dcconList[i];
-        for (var j = 0; j < dccon.tags.length; j++) {
-          var tag = dccon.tags[j];
-          if (tags.indexOf(tag) == -1) {
-            tags.push(tag);
-          }
-        }
-        for (var j = 0; j < dccon.keywords.length; j++) {
-          var keyword = dccon.keywords[j];
-          dcconSearchMap[keyword] = dccon;
-          dcconKeywordList.push(keyword);
-          autocompleteData[keyword] = dccon.path;
-          $('div.dccon-list').append(
-/*            '<div class="dccon column col-xs-6 col-md-4 col-lg-3 col-xl-2 col-2 tooltip tooltip-bottom" data-keyword="'*/
-							'<div class="dccon column col-xs-6 col-md-4 col-lg-3 col-xl-2 col-15 tooltip tooltip-bottom" data-keyword="' + keyword + '" data-tags="' + dccon.tags.join(',') + '" data-clipboard-text="~' + keyword + '" data-tooltip="' + dccon.keywords
-            .join(', ') + '">' +
-            '  <div class="card">' +
-            '    <div class="card-image">' +
-						'      <img class="img-background" src="' + dccon.path + '">' +
-            '      <img class="img-responsive width100 lazy" data-src="' + dccon.path + '">' +
-            '    </div>' +
-/*            '    <div class="card-body">' +
-            keyword +
-            '    </div>' +
-*/            '  </div>' +
-            '</div>');
-          $('#autocomplete').append(
-            '<li class="menu-item">' +
-            '  <a href="#" class="autocomplete-item" data-keyword="' + keyword + '" data-clipboard-text="~' + keyword + '">' +
-            '    <div class="tile tile-centered">' +
-            '      <div class="tile-icon">' +
-            '        <img data-src="' + dccon.path + '" class="avatar avatar-sm lazy"/>' +
-            '      </div>' +
-            '      <div class="tile-content">' + keyword +
-            '      </div>' +
-            '    </div>' +
-            '  </a>' +
-            '</li>'
-          );
-        }
-      }
-
-      var lazyDccon = $(".dccon > .card > .card-image > img.lazy").Lazy({
-        chainable: false,
-        visibleOnly: true
-      });
-      var lazyAutocompletedIcon = $(".autocomplete-item > .tile > .tile-icon > img.lazy").Lazy({
-        chainable: false,
-        visibleOnly: true,
-        appendScroll: $('#autocomplete')
-      });
-
-      $('.autocomplete-item').click(function() {
-        currentSearchText = $(this).data('keyword');
-        $('input#search').val(currentSearchText);
-        updateList();
-        $('#autocomplete').addClass('hide');
-      });
-
-      tags.sort();
-      new Clipboard('.dccon, .autocomplete-item').on('success', function(e) {
-        var $toast = $('<div class="toast toast-primary">' +
-          '이모티콘 "' + e.text + '"을(를) 복사했습니다. 이제 채팅창에 입력하세요!' +
-          '</div>');
-        $toast.delay(3000).fadeOut('slow', function() {
-          $toast.remove();
-        });
-        $('.toast-container').append($toast);
-      });
-
-      for (var i = 0; i < tags.length; i++) {
-        var tag = tags[i];
-        $('div.tags').append('<label class="chip" id="tag-' + i + '" data-tag="' + tag + '">' +
-          tag +
-          '</label>');
-      }
-
-      $('div.tags>.chip').click(function(e) {
-        var $this = $(this);
-        var tag = $this.data('tag');
-        if ($this.hasClass('tag-selected')) {
-          $this.removeClass('tag-selected');
-          var index = seletedTags.indexOf(tag);
-          if (index >= 0) {
-            seletedTags.splice(index, 1);
-          }
-        } else {
-          $this.addClass('tag-selected');
-          seletedTags.push(tag);
-        }
-        updateList();
-      });
-
-      $('input#search').on("focusin", function(e) {
-        $('#autocomplete').removeClass('hide').scrollTop(0);
-        lazyAutocompletedIcon.update();
-      });
-
-      $('input#search').on("focusout", function(e) {
-        if (!$(e.relatedTarget).hasClass('autocomplete-item')) {
-          $('#autocomplete').addClass('hide');
-        }
-      });
-      $(document).keydown(
-        function(e) {
-          if (!$('#autocomplete').hasClass('hide')) {
-            var $focusedAutocompleteItem = $('.menu-item:not(".hide")>.autocomplete-item:focus');
-            if (e.keyCode == 40) { // down
-              e.preventDefault();
-              if ($focusedAutocompleteItem.length > 0) {
-                $focusedAutocompleteItem.parent().nextAll('.menu-item:not(".hide")').first().children().focus();
-              } else {
-                $('.menu-item:not(".hide")>.autocomplete-item').first().focus();
-              }
-            } else if (e.keyCode == 38) { // up
-              e.preventDefault();
-              if ($focusedAutocompleteItem.length > 0) {
-                $focusedAutocompleteItem.parent().prevAll('.menu-item:not(".hide")').first().children().focus();
-              }
-            } else if (e.keyCode == 27) { // esc
-              e.preventDefault();
-              $('#autocomplete').addClass('hide');
-            }
-          }
-        });
-
-      function updateList() {
-        visibleDccon = {};
-        $('.dccon').each(function() {
-          var $this = $(this);
-          var keyword = $this.data('keyword');
-          var tags = $this.data('tags').split(',');
-          var dccon = dcconSearchMap[keyword];
-          var searchResult = (function() {
-            if (seletedTags.length > 0) {
-              var hasTag = false;
-              for (var i = 0; i < tags.length; i++) {
-                if (seletedTags.indexOf(tags[i]) != -1) {
-                  hasTag = true;
-                  break;
-                }
-              }
-              if (!hasTag) {
-                return false;
-              }
-            }
-            if (currentSearchText.length > 0 && keyword.indexOf(currentSearchText) == -1) {
-              return false;
-            }
-            return true;
-          })();
-          if (searchResult && visibleDccon[dccon.keywords.join(",")] == undefined) {
-            visibleDccon[dccon.keywords.join(",")] = dccon;
-            $this.removeClass('hide');
-          } else {
-            $this.addClass('hide');
-          }
-        });
-
-        $('.autocomplete-item').each(function() {
-          var $this = $(this);
-          var keyword = $this.data('keyword');
-          if (HANGUL.indexOf(keyword, currentSearchText) != -1) {
-            $this.parent().removeClass('hide');
-          } else {
-            $this.parent().addClass('hide');
-          }
-        });
-        if ($('.menu-item:not(".hide")').length == 0) {
-          $('#autocomplete').addClass('hide');
-        } else if ($('input#search').is(":focus")) {
-          $('#autocomplete').removeClass('hide').scrollTop(0);;
-          lazyAutocompletedIcon.update();
-        }
-
-        lazyDccon.update();
-        lazyAutocompletedIcon.update();
-      }
-
-      $('input#search').on('input', function(e) {
-        currentSearchText = $('input#search').val();
-        updateList();
-      });
-      $('#search_clear').click(function() {
-        $('input#search').val('');
-        currentSearchText = '';
-        updateList();
-      });
-      updateList();
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3/dist/css/bootstrap.min.css">
+<style> 
+    body{ 
+      background-color: #333; 
+      max-width: 1280px;
+      margin: 0 auto;
+    } 
+    @media screen and (max-width: 600px) {  
+      div.img { 
+        margin: 0.9%; 
+        border: 1px solid rgba(255,255,255,0);  
+        float: left;  
+        width: 18%; 
+        backface-visibility: visible !important;  
+        animation: bounceIn 1.2s; 
+        transition: .2s;  
+        z-index: 1; 
+      } 
+    } 
+    @media screen and (min-width: 601px) {  
+      div.img { 
+        margin: 5px;  
+        border: 1px solid rgba(255,255,255,0);  
+        float: left;  
+        width: 100px; 
+        height: 100px;  
+        backface-visibility: visible !important;  
+        animation: bounceIn 1.2s; 
+        transition: .2s;  
+        z-index: 1; 
+      } 
+      .fz4{margin:0!important;}
+    } 
+    div.img:hover { 
+      border: 1px solid #fff; 
+      box-shadow: 0px 0px 25px 1px #fff, inset 0px 0px 25px 1px #fff;   
+    } 
+    @keyframes bounceIn { 
+      from, 20%, 40%, 60%, 80%, to {z-index: -5; animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);}  
+      0% {transform: scale3d(.3, .3, .3); opacity: 0;}  
+      20% {transform: scale3d(1.1, 1.1, 1.1);}  
+      40% {transform: scale3d(.9, .9, .9);} 
+      60% {transform: scale3d(1.03, 1.03, 1.03); opacity: .9; } 
+      80% {transform: scale3d(.97, .97, .97);}  
+      to {transform: scale3d(1, 1, 1); opacity: 1;} 
+    } 
+    div.img img { 
+      width: 100%;  
+      height: auto; 
+    } 
+    div.desc, div.tag {  
+      display: none;  
+    } 
+    input,.input-group {  
+      width: 100%;  
+    } 
+    div.headerBox{  
+      position: fixed;  
+      top: 0; 
+      left: 0;  
+      right: 0; 
+      width: 100%;  
+      height: 94px; 
+      background-color:#333;  
+      background-repeat: repeat;  
+      box-shadow: 0 0px 20px 20px #333; 
+    } 
+    div.header {  
+      padding: 0px 0px 0px 3px; 
+      max-width: 400px; 
+      margin: 8px auto;  
+      background-color: #333; 
+      animation: fdon 4s; 
+      animation-fill-mode: forwards;
+    } 
+    .emoticon { 
+      margin-top: 105px; 
+      margin-bottom: 20px;  
+      margin-left: 10px;  
+      height: auto; 
+      z-index: 999; 
+    } 
+    .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group{ 
+      width: 63px;  
+    } 
+    .col-lg-6l, .col-lg-6r{ 
+      width: 50%; 
+      padding: 5px; 
+      float: left;  
+    } 
+    .fz4{
+      padding: 5px;
+      margin-top: 42px;
     }
-    $(document).ready(function() {
-      var dcconListUrl = getUrlParameter('dccon_list');
-      if (dcconListUrl == undefined) {
-        dcconListUrl = 'https://raw.githubusercontent.com/chowonhee1235/wonhee-dccon.html/main/dccon.json';
-      }
-      $.getJSON(dcconListUrl).done(function(data) {
-          dcconList = data.dccons;
-          init();
-        })
-        .fail(function(jqxhr, textStatus, error) {
-          var err = textStatus + ", " + error;
-          console.log("Request Failed: " + err);
-          init();
-        });
-    });
+    .fzicon{
+      width: 17px;
+      height: 20px;
+    }
+    @keyframes fdon {  
+      from {  
+        visibility: visible;  
+        opacity: 0; 
+      } 
+      to {  
+        opacity: 1; 
+      } 
+    } 
+    @keyframes slideInLeft {  
+      from {  
+        -webkit-transform: translate3d(-100%, 0, 0);  
+        transform: translate3d(-100%, 0, 0);  
+        visibility: visible;  
+        opacity: 0; 
+      } 
+      to {  
+        -webkit-transform: translate3d(0, 0, 0);  
+        transform: translate3d(0, 0, 0);  
+        opacity: 1; 
+      } 
+    } 
+    @keyframes slideInRight { 
+      from {  
+        -webkit-transform: translate3d(100%, 0, 0); 
+        transform: translate3d(100%, 0, 0); 
+        visibility: visible;  
+        opacity: 0; 
+      } 
+      to {  
+        -webkit-transform: translate3d(0, 0, 0);  
+        transform: translate3d(0, 0, 0);  
+        opacity: 1; 
+      } 
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/combine/npm/jquery@3,npm/handlebars@4/dist/handlebars.min.js,npm/jquery.quicksearch@2,npm/jquery-lazyload@1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@3/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+</head>
+<body>
+  <script id="dccon-template" type="text/x-handlebars-template">
+  {{#dccon}}
+  <div class="img">
+    <a href="#" onclick="inputDCCon('~{{keywords.[0]}}');return false;">
+      <img class="lazy" data-original="{{uri}}" alt="{{join keywords ','}}" data-toggle="tooltip" data-html="true" data-placement="top" title="{{join keywords ','}}<br>태그: {{join tags ','}}" width="100" height="100">
+    </a>
+    {{#keywords}}
+    <div class="desc">{{this}}</div>
+    {{/keywords}}
+    {{#tags}}
+    <div class="tag">{{this}}</div>
+    {{/tags}}
+  </div>
+  {{/dccon}}
+  </script>
+  <div class="headerBox">
+    <div class="row header">
+      <div class="col-lg-6l">
+        <div class="input-group">
+          <input type="text" id="dcconnamesearch" class="form-control dcconsearch" placeholder="이름 검색">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" onclick="resetNameSearch();">
+<svg class="fzicon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="undo" class="svg-inline--fa fa-undo fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M212.333 224.333H12c-6.627 0-12-5.373-12-12V12C0 5.373 5.373 0 12 0h48c6.627 0 12 5.373 12 12v78.112C117.773 39.279 184.26 7.47 258.175 8.007c136.906.994 246.448 111.623 246.157 248.532C504.041 393.258 393.12 504 256.333 504c-64.089 0-122.496-24.313-166.51-64.215-5.099-4.622-5.334-12.554-.467-17.42l33.967-33.967c4.474-4.474 11.662-4.717 16.401-.525C170.76 415.336 211.58 432 256.333 432c97.268 0 176-78.716 176-176 0-97.267-78.716-176-176-176-58.496 0-110.28 28.476-142.274 72.333h98.274c6.627 0 12 5.373 12 12v48c0 6.627-5.373 12-12 12z"></path></svg>
+            </button>
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-6r">
+        <div class="input-group">
+          <input type="text" id="dccontagsearch" class="form-control dcconsearch" placeholder="태그 검색">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" onclick="resetTagSearch();">
+<svg class="fzicon" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="undo" class="svg-inline--fa fa-undo fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M212.333 224.333H12c-6.627 0-12-5.373-12-12V12C0 5.373 5.373 0 12 0h48c6.627 0 12 5.373 12 12v78.112C117.773 39.279 184.26 7.47 258.175 8.007c136.906.994 246.448 111.623 246.157 248.532C504.041 393.258 393.12 504 256.333 504c-64.089 0-122.496-24.313-166.51-64.215-5.099-4.622-5.334-12.554-.467-17.42l33.967-33.967c4.474-4.474 11.662-4.717 16.401-.525C170.76 415.336 211.58 432 256.333 432c97.268 0 176-78.716 176-176 0-97.267-78.716-176-176-176-58.496 0-110.28 28.476-142.274 72.333h98.274c6.627 0 12 5.373 12 12v48c0 6.627-5.373 12-12 12z"></path></svg>
+            </button>
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-12 fz4">
+        <div class="input-group">
+          <input type="text" id="dcconresult" class="form-control dcconresult" placeholder="선택한 디시콘은 이곳에 입력됩니다" readonly>
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" data-clipboard-target="#dcconresult">
+<svg class="fzicon" aria-hidden="true" focusable="false" data-prefix="far" data-icon="copy" class="svg-inline--fa fa-copy fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M433.941 65.941l-51.882-51.882A48 48 0 0 0 348.118 0H176c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48v-48h80c26.51 0 48-21.49 48-48V99.882a48 48 0 0 0-14.059-33.941zM266 464H54a6 6 0 0 1-6-6V150a6 6 0 0 1 6-6h74v224c0 26.51 21.49 48 48 48h96v42a6 6 0 0 1-6 6zm128-96H182a6 6 0 0 1-6-6V54a6 6 0 0 1 6-6h106v88c0 13.255 10.745 24 24 24h88v202a6 6 0 0 1-6 6zm6-256h-64V48h9.632c1.591 0 3.117.632 4.243 1.757l48.368 48.368a6 6 0 0 1 1.757 4.243V112z"></path></svg>
+            </button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="emoticon" class="emoticon">
+  </div>
+  <script>
+    var dcconimage = {};
+    var dccontag = {};
+    var data = {
+        dccon: []
+    };
+    var loaded = false;
+    // 디시콘 불러오기 초기화 함수
+    function initList() {
+        var emoticon_js = document.createElement("script");
+        emoticon_js.type = "text/javascript";
+        emoticon_js.charset = "utf-8";
+        // !! 디시콘 주소는 이곳에서 변경 가능합니다 !!
+        emoticon_js.src = "https://www.funzinnu.com/stream/dccon.js?ts=" + new Date().getTime();
+        document.body.appendChild(emoticon_js);
+        emoticon_js.onload = function() {
+            if (!loaded) {
+                loaded = true;
+                try {
+                    data.dccon = dcConsData;
+                    Handlebars.registerHelper('join', function (val, delimiter, start, end) {
+                        var arry = [].concat(val);
+                        delimiter = ( typeof delimiter == "string" ? delimiter : ',' );
+                        start = start || 0;
+                        end = ( end === undefined ? arry.length : end );
+                        return arry.slice(start, end).join(delimiter);
+                    });
+                    var source = $("#dccon-template").html();
+                    var template = Handlebars.compile(source);
+                    var html = template(data);
+                    $('#emoticon').html(html);
+                    var qs = $('input#dcconnamesearch').quicksearch('div#emoticon div.img', {
+                        'delay': 100,
+                        'selector': 'div.desc',
+                        'onAfter': function() {
+                            $('#dccontagsearch').val('');
+                            $('body').scroll();
+                        }
+                    });
+                    var qs = $('input#dccontagsearch').quicksearch('div#emoticon div.img', {
+                        'delay': 100,
+                        'selector': 'div.tag',
+                        'onAfter': function() {
+                            $('#dcconnamesearch').val('');
+                            $('body').scroll();
+                        }
+                    });
+                    $("img.lazy").lazyload();
+                    new Clipboard('.btn');
+                    $('[data-toggle="tooltip"]').tooltip();
+                } catch (e) {
+                    alert("Unknown error occured while parsing DCCon JSON.");
+                }
+            }
+        }
+    }
+    function inputDCCon(name) {
+        $('#dcconresult').val(name);
+    }
+    function resetNameSearch() {
+        $('#dcconnamesearch').val('');
+        $('#dcconnamesearch').trigger("keyup");
+    }
+    function resetTagSearch() {
+        $('#dccontagsearch').val('');
+        $('#dccontagsearch').trigger("keyup");
+    }
+    window.onload = function() {
+        initList();
+    }
   </script>
 </body>
-
 </html>
