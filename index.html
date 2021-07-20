@@ -313,7 +313,7 @@
     $(document).ready(function() {
       var dcconListUrl = getUrlParameter('dccon_list');
       if (dcconListUrl == undefined) {
-        dcconListUrl = 'https://bit.ly/36TKajb';
+        dcconListUrl = 'https://raw.githubusercontent.com/chowonhee1235/wonhee-dccon.html/main/dccon.json';
       }
       $.getJSON(dcconListUrl).done(function(data) {
           dcconList = data.dccons;
