@@ -5,151 +5,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>wonhee JSAssist Open DCcon List</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.2.14/spectre-exp.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.2.14/spectre-icons.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.2.14/spectre.min.css" />
-  <style>
-    .width100 {
-      width: 100%;
-    }
-
-    #search:focus {
-      z-index: auto;
-    }
-
-    @media only screen and (min-width: 1280px) {
-      .container {
-        max-width: 1280px;
-      }
-    }
-
-    body {
-      padding-top: 32px;
-      padding-bottom: 32px;
-      background: #000000;
-    }
-
-    .card {
-      border-width: 0px;
-    }
-
-    .chip {
-      margin-right: 8px;
-      margin-bottom: 8px;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -khtml-user-select: none;
-      -ms-user-select: none;
-    }
-
-
-    .dccon {
-      cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -khtml-user-select: none;
-      -ms-user-select: none;
-    }
-
-/*    .dccon>.card>.card-body {
-      height: 70px;
-    }
-*/
-    #search_clear {
-      cursor: pointer;
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 0px;
-      right: 0px;
-      padding: 16px;
-      z-index: 400;
-    }
-
-    .toast {
-      margin-top: 8px;
-    }
-
-    .menu {
-      max-height: 360px;
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
-
-    .dccon.tooltip::after {
-      width: 100%;
-/*      margin-left: 9px;
-      margin-right: 9px;
-*/      height: 72px;
-/*      padding: 12px;
-      padding-right: 28px;
-*/			padding:1.5rem;
-/*      white-space: pre-line;
-*/		white-space:pre-wrap;
-      border-top-left-radius: 0px;
-      border-top-right-radius: 0px;
-    }
-
-    .dccon.tooltip.tooltip-bottom:focus::after,
-    .tooltip.tooltip-bottom:hover::after {
-      opacity: 1;
-      -webkit-transform: translate(-50%, -81px);
-      -ms-transform: translate(-50%, -81px);
-      transform: translate(-50%, -81px);		
-    }
-		
-		.col-15		{ width:12.5%; flex:none; }
-		div.card		{ background:transparent; }
-		
-		.img-background			{	opacity:0; width:100px; height:100px; }
-		.card, .card-image	{	height:100%; }
-		.card-image					{	position:relative; }
-		.img-responsive.width100.lazy
-													{ position:absolute;
-														top:0; bottom:0; left:0; right:0;
-														margin:auto; }
-  </style>
+  <title>이미지콘 선택기</title>
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/list.css" />
 </head>
 
 <body>
   <div class="container">
-    <div class="columns">
-      <div class="column hide-xs show col-md-1 col-2"></div>
-      <div class="column col-xs-12 col-md-10 col-8">
-        <div class="input-group input-inline width100">
-          <span class="input-group-addon">~</span>
-          <div class="form-autocomplete width100">
-            <div class="form-autocomplete-input form-input has-icon-right">
-              <input class="form-input" id="search" type="text" placeholder="디시콘 검색" />
-              <i class="form-icon icon icon-cross" id="search_clear"></i>
+    <div class="headerbox">
+        <div class="top-menu">
+        <li>Twitch</li>
+        </div>
+      <div class="columns">
+        <div class="column hide-xs show col-md-1 col-2"></div>
+        <div class="column col-xs-12 col-md-10 col-8">
+          <div class="logo"><p>이미지콘 선택기</p></div>
+          <div class="input-group input-inline width100">
+            <span class="input-group-addon">~</span>
+            <div class="form-autocomplete width100">
+              <div class="form-autocomplete-input form-input has-icon-right">
+                <input class="form-input" id="search" type="text" placeholder="이모티콘 검색" />
+                <i class="form-icon icon icon-cross" id="search_clear"></i>
+              </div>
+              <ul class="menu hide" id="autocomplete"></ul>
             </div>
-            <ul class="menu hide" id="autocomplete"></ul>
           </div>
         </div>
       </div>
-    </div>
-    <div class="columns">
-      <div class="column hide-xs show col-md-1 col-2"></div>
-      <div class="column col-xs-12 col-md-10 col-8">
-        <div class="tags"></div>
+      <div class="columns">
+        <div class="column hide-xs show col-md-1 col-2"></div>
+        <div class="column col-xs-12 col-md-10 col-8">
+          <div class="tags"></div>
+        </div>
       </div>
     </div>
-    <div class="columns">
-      <div class="column hide-xs show col-lg-1 col-1"></div>
-      <div class="column col-xs-12 col-lg-10 col-10 columns dccon-list"></div>
+    <div class="intervalbox"></div>
+    <div class="itembox">
+      <div class="columns">
+        <div class="column hide-xs show col-lg-1 col-1"></div>
+        <div class="column col-xs-12 col-lg-10 col-10 columns dccon-list"></div>
+      </div>
     </div>
     <div class="toast-container"></div>
 
   </div>
 	<script type="text/javascript">
 		var stl = null;
-		
+
 		var resize = function() {
 			if (stl!=null) { stl.remove(); }
 			stl = document.createElement("style");
-			
+
 			var width = document.body.getElementsByClassName("dccon-list")[0].scrollWidth;
 			if (width < 800)
 			{
@@ -169,14 +75,18 @@
 				else { stl.innerText=".col-15{width:16%;}" }
 			}
 			else { stl.innerText=".col-15{width:12.5%;}" }
-			
+
 			document.body.appendChild(stl);
 		};
-		
+
 		window.addEventListener("resize", resize);
 		window.addEventListener("load", resize);
 	</script>
-
+  <div class="credit">
+      <div class="text">
+          <p>Original System by <a href="https://github.com/rishubil/jsassist-open-dccon">rishubil</a>, Edited by Ganke</p>
+      </div>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.5/jquery.lazy.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.5/jquery.lazy.plugins.min.js"></script>
@@ -186,7 +96,7 @@
     var dcconList = [];
 
     function getUrlParameter(sParam) {
-      var sPageURL = window.location.search.substring(1),
+      var sPageURL = decodeURIComponent(window.location.search.substring(1)),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
@@ -194,8 +104,8 @@
       for (i = 0; i < sURLVariables.length; i++) {
         sParameterName = sURLVariables[i].split('=');
 
-        if (decodeURIComponent(sParameterName[0]) === sParam) {
-          return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        if (sParameterName[0] === sParam) {
+          return sParameterName[1] === undefined ? true : sParameterName[1];
         }
       }
     };
@@ -223,6 +133,7 @@
           dcconKeywordList.push(keyword);
           autocompleteData[keyword] = dccon.path;
           $('div.dccon-list').append(
+/*            '<div class="dccon column col-xs-6 col-md-4 col-lg-3 col-xl-2 col-2 tooltip tooltip-bottom" data-keyword="'*/
 							'<div class="dccon column col-xs-6 col-md-4 col-lg-3 col-xl-2 col-15 tooltip tooltip-bottom" data-keyword="' + keyword + '" data-tags="' + dccon.tags.join(',') + '" data-clipboard-text="~' + keyword + '" data-tooltip="' + dccon.keywords
             .join(', ') + '">' +
             '  <div class="card">' +
@@ -230,7 +141,10 @@
 						'      <img class="img-background" src="' + dccon.path + '">' +
             '      <img class="img-responsive width100 lazy" data-src="' + dccon.path + '">' +
             '    </div>' +
-            '  </div>' +
+/*            '    <div class="card-body">' +
+            keyword +
+            '    </div>' +
+*/            '  </div>' +
             '</div>');
           $('#autocomplete').append(
             '<li class="menu-item">' +
@@ -268,7 +182,7 @@
       tags.sort();
       new Clipboard('.dccon, .autocomplete-item').on('success', function(e) {
         var $toast = $('<div class="toast toast-primary">' +
-          '디씨콘 "' + e.text + '"을(를) 복사했습니다. 이제 채팅창에 입력하세요!' +
+          '이모티콘 "' + e.text + '"을(를) 복사했습니다. 이제 채팅창에 입력하세요!' +
           '</div>');
         $toast.delay(3000).fadeOut('slow', function() {
           $toast.remove();
@@ -399,7 +313,7 @@
     $(document).ready(function() {
       var dcconListUrl = getUrlParameter('dccon_list');
       if (dcconListUrl == undefined) {
-        dcconListUrl = 'http://lastorder.xyz/ChatAssistX-Client/opendccon.json';
+        dcconListUrl = 'https://raw.githubusercontent.com/boutoron2685/open-dccon-custom-list/master/js/dccon_list.json';
       }
       $.getJSON(dcconListUrl).done(function(data) {
           dcconList = data.dccons;
@@ -413,5 +327,5 @@
     });
   </script>
 </body>
-</html>
 
+</html>
