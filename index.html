@@ -206,7 +206,7 @@
         emoticon_js.type = "text/javascript";
         emoticon_js.charset = "utf-8";
         // !! 디시콘 주소는 이곳에서 변경 가능합니다 !!
-        emoticon_js.src = "https://www.funzinnu.com/stream/dccon.js?ts=" + new Date().getTime();
+        emoticon_js.src = "https://www.funzinnu.com/stream/dccon.js?ts=https://raw.githubusercontent.com/chowonhee1235/chowonhee1235dcconchat/main/opendccon.json" + new Date().getTime();
         document.body.appendChild(emoticon_js);
         emoticon_js.onload = function() {
             if (!loaded) {
